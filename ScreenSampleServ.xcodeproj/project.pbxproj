@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DC5B28461B89298600CE468B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DC5B28451B89298600CE468B /* main.m */; };
+		DC5B284D1B89846B00CE468B /* ScreenSample.m in Sources */ = {isa = PBXBuildFile; fileRef = DC5B284C1B89846B00CE468B /* ScreenSample.m */; };
+		DC5B28511B898EA200CE468B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DC5B28501B898EA200CE468B /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +25,10 @@
 
 /* Begin PBXFileReference section */
 		DC5B28421B89298600CE468B /* ScreenSampleServ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScreenSampleServ; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC5B28451B89298600CE468B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DC5B284C1B89846B00CE468B /* ScreenSample.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenSample.m; sourceTree = "<group>"; };
+		DC5B284E1B8986E200CE468B /* ScreenSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSample.h; sourceTree = "<group>"; };
+		DC5B284F1B898DDE00CE468B /* opc_client.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = opc_client.h; sourceTree = "<group>"; };
+		DC5B28501B898EA200CE468B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +61,10 @@
 		DC5B28441B89298600CE468B /* ScreenSampleServ */ = {
 			isa = PBXGroup;
 			children = (
-				DC5B28451B89298600CE468B /* main.m */,
+				DC5B284C1B89846B00CE468B /* ScreenSample.m */,
+				DC5B284E1B8986E200CE468B /* ScreenSample.h */,
+				DC5B284F1B898DDE00CE468B /* opc_client.h */,
+				DC5B28501B898EA200CE468B /* main.cpp */,
 			);
 			path = ScreenSampleServ;
 			sourceTree = "<group>";
@@ -118,7 +125,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC5B28461B89298600CE468B /* main.m in Sources */,
+				DC5B28511B898EA200CE468B /* main.cpp in Sources */,
+				DC5B284D1B89846B00CE468B /* ScreenSample.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
