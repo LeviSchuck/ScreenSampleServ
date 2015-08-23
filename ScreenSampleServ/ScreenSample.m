@@ -72,24 +72,40 @@ void takeSample(uint8_t * dest, const int width, const int height, const float g
         
         NSInteger stepX = [rep pixelsWide] / width;
         NSInteger stepY = [rep pixelsHigh] / height;
-        NSInteger midY = stepY * (0.3 * height);
+        NSInteger midY = stepY * (0.45 * height);
         NSColor * color;
         int index = 0;
         
-        for(int i = 0; i < width; i++){
+        // right, upwards
+        for(int i = height-1; i >= 0; i--){
+            color = [rep colorAtX:([rep pixelsWide] - stepX) y:(i * stepY)];
+            putColor(color, dest, &index);
+            //dest[index++] = i % 3 != 0 ? 255 : 0;
+            //dest[index++] = i % 3 != 1 ? 255 : 0;
+            //dest[index++] = i % 3 != 2 ? 255 : 0;
+        }
+        
+        // middle, towards left
+        for(int i = width-1; i >= 0; i--){
             color = [rep colorAtX:(stepX * i) y:midY];
             putColor(color, dest, &index);
+            //dest[index++] = i % 3 == 0 ? 255 : 0;
+            //dest[index++] = i % 3 == 1 ? 255 : 0;
+            //dest[index++] = i % 3 == 2 ? 255 : 0;
         }
         //NSLog(@"\n");
-        for(int i = 0; i < height; i++){
-            color = [rep colorAtX:stepX y:(i* stepY)];
-            putColor(color, dest, &index);
-        }
+        
         //NSLog(@"\n");
+        // left, downwards
         for(int i = 0; i < height; i++){
-            color = [rep colorAtX:([rep pixelsWide] - stepX) y:(i* stepY)];
+            color = [rep colorAtX:stepX y:(i * stepY)];
             putColor(color, dest, &index);
+            //dest[index++] = 255;
+            //dest[index++] = 255;
+            //dest[index++] = 255;
         }
+        
+        //NSLog(@"Wrote %d pixels\n",index/3);
         
         CGImageRelease(screenshot);
     }

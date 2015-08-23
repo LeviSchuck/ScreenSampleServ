@@ -17,7 +17,7 @@ std::vector<uint8_t> frameBuffer;
 OPCClient opc;
 
 int main(int argc, const char * argv[]) {
-    const int width = 26;
+    const int width = 25;
     const int height = 15;
     const int pixels = width + height*2;
     const int bytes = pixels*3;
@@ -30,7 +30,7 @@ int main(int argc, const char * argv[]) {
     
     frameBuffer.resize(sizeof(OPCClient::Header) + bytes);
     OPCClient::Header::view(frameBuffer).init(0, opc.SET_PIXEL_COLORS, bytes);
-    
+    opc.resolve("localhost");
     while(true){
         if (!opc.tryConnect()) {
             sleep(10);
@@ -38,9 +38,9 @@ int main(int argc, const char * argv[]) {
         }
         takeSample(vals,width,height,0.8f);
         uint8_t * dest = OPCClient::Header::view(frameBuffer).data();
-        memcpy(dest,vals,pixels);
+        memcpy(dest,vals,bytes);
         opc.write(frameBuffer);
-        usleep(10000);
+        usleep(100000);
     }
     
     return 0;
