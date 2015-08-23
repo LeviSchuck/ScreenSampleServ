@@ -15,16 +15,19 @@
 @import AppKit;
 
 CIImage * scaleBlur(CGImageRef img, const float gausBy) {
-    NSInteger width = CGImageGetWidth(img) >> 3;
-    NSInteger height = CGImageGetHeight(img) >> 3;
+    const int factor = 2;
+    const float ratio = 1.0f / (float)(1 << factor);
+    NSInteger width = CGImageGetWidth(img) >> factor;
+    NSInteger height = CGImageGetHeight(img) >> factor;
     CGRect rect = CGRectMake(0, 0, width, height);
+    CIVector * center = [CIVector vectorWithX:(width >> 1) Y:(height >> 1)];
     
     CIImage * cimg = [CIImage imageWithCGImage:img];
     
     CIFilter * resize = [CIFilter filterWithName:@"CILanczosScaleTransform"];
     [resize setValue:cimg forKey:kCIInputImageKey];
     [resize setValue:[NSNumber numberWithFloat:1.0f] forKey:kCIInputAspectRatioKey];
-    [resize setValue:[NSNumber numberWithFloat:0.125] forKey:kCIInputScaleKey];
+    [resize setValue:[NSNumber numberWithFloat:ratio] forKey:kCIInputScaleKey];
     
     CGAffineTransform transform = CGAffineTransformIdentity;
     CIFilter * clamp = [CIFilter filterWithName:@"CIAffineClamp"];
@@ -35,12 +38,21 @@ CIImage * scaleBlur(CGImageRef img, const float gausBy) {
     [gaus setValue:clamp.outputImage forKey:kCIInputImageKey];
     [gaus setValue:[NSNumber numberWithFloat:gausBy] forKey:kCIInputRadiusKey];
     
-    CIImage * gausCropped = [[gaus valueForKey:kCIOutputImageKey] imageByCroppingToRect:rect];
+    CIFilter * zoom = [CIFilter filterWithName:@"CIZoomBlur"];
+    [zoom setValue:gaus.outputImage forKey:kCIInputImageKey];
+    [zoom setValue:center forKey:kCIInputCenterKey];
+    [zoom setValue:[NSNumber numberWithFloat:30.f] forKey:@"inputAmount"];
+    
+    CIFilter * vib = [CIFilter filterWithName:@"CIVibrance"];
+    [vib setValue:zoom.outputImage forKey:kCIInputImageKey];
+    [vib setValue:[NSNumber numberWithFloat:10.f] forKey:@"inputAmount"];
+    
+    CIImage * processedCropped = [[vib valueForKey:kCIOutputImageKey] imageByCroppingToRect:rect];
     
     CIFilter * resize2 = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-    [resize2 setValue:gausCropped forKey:kCIInputImageKey];
+    [resize2 setValue:processedCropped forKey:kCIInputImageKey];
     [resize2 setValue:[NSNumber numberWithFloat:1.0f] forKey:kCIInputAspectRatioKey];
-    [resize2 setValue:[NSNumber numberWithFloat:0.125] forKey:kCIInputScaleKey];
+    [resize2 setValue:[NSNumber numberWithFloat:0.25] forKey:kCIInputScaleKey];
     
     CIImage * result = [resize2 valueForKey:kCIOutputImageKey];
     return result;
@@ -65,10 +77,10 @@ void takeSample(uint8_t * dest, const int width, const int height, const float g
         
         CIImage * result = scaleBlur(screenshot, gausBy);
         
-        // NSString * filePath = [@"~/Desktop/test.png" stringByExpandingTildeInPath];
         NSBitmapImageRep* rep = [[NSBitmapImageRep alloc] initWithCIImage: result];
-        // NSData *pngData = [rep representationUsingType: NSPNGFileType properties: nil];
-        // [pngData writeToFile: filePath atomically: YES];
+        //NSData *pngData = [rep representationUsingType: NSPNGFileType properties: nil];
+        //NSString * filePath = [@"~/Desktop/test.png" stringByExpandingTildeInPath];
+        //[pngData writeToFile: filePath atomically: YES];
         
         NSInteger stepX = [rep pixelsWide] / width;
         NSInteger stepY = [rep pixelsHigh] / height;
@@ -78,7 +90,7 @@ void takeSample(uint8_t * dest, const int width, const int height, const float g
         
         // right, upwards
         for(int i = height-1; i >= 0; i--){
-            color = [rep colorAtX:([rep pixelsWide] - stepX) y:(i * stepY)];
+            color = [rep colorAtX:([rep pixelsWide] - (stepX * 2)) y:(i * stepY + (stepY / 2))];
             putColor(color, dest, &index);
             //dest[index++] = i % 3 != 0 ? 255 : 0;
             //dest[index++] = i % 3 != 1 ? 255 : 0;
@@ -87,7 +99,7 @@ void takeSample(uint8_t * dest, const int width, const int height, const float g
         
         // middle, towards left
         for(int i = width-1; i >= 0; i--){
-            color = [rep colorAtX:(stepX * i) y:midY];
+            color = [rep colorAtX:(stepX * i + (stepX / 2)) y:midY];
             putColor(color, dest, &index);
             //dest[index++] = i % 3 == 0 ? 255 : 0;
             //dest[index++] = i % 3 == 1 ? 255 : 0;
@@ -98,7 +110,7 @@ void takeSample(uint8_t * dest, const int width, const int height, const float g
         //NSLog(@"\n");
         // left, downwards
         for(int i = 0; i < height; i++){
-            color = [rep colorAtX:stepX y:(i * stepY)];
+            color = [rep colorAtX:(stepX * 2) y:(i * stepY + (stepY / 2))];
             putColor(color, dest, &index);
             //dest[index++] = 255;
             //dest[index++] = 255;
