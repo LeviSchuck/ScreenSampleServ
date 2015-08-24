@@ -21,6 +21,8 @@ int main(int argc, const char * argv[]) {
     const int height = 15;
     const int pixels = width + height*2;
     const int bytes = pixels*3;
+    // fudge padding for  excess things that fadecandy doesn't clear >:"{
+    const int padding = 10*3;
     uint8_t vals[bytes];
     
     /*for(int blah = 0; blah < 10; blah++){
@@ -28,8 +30,9 @@ int main(int argc, const char * argv[]) {
             dumpPixels(vals, pixels);
     }*/
     
-    frameBuffer.resize(sizeof(OPCClient::Header) + bytes);
-    OPCClient::Header::view(frameBuffer).init(0, opc.SET_PIXEL_COLORS, bytes);
+    frameBuffer.resize(sizeof(OPCClient::Header) + bytes + padding);
+    
+    OPCClient::Header::view(frameBuffer).init(0, opc.SET_PIXEL_COLORS, bytes + padding);
     opc.resolve("localhost");
     while(true){
         if (!opc.tryConnect()) {
@@ -38,6 +41,7 @@ int main(int argc, const char * argv[]) {
         }
         takeSample(vals,width,height,0.8f);
         uint8_t * dest = OPCClient::Header::view(frameBuffer).data();
+        
         memcpy(dest,vals,bytes);
         opc.write(frameBuffer);
         usleep(100000);
